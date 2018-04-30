@@ -32,8 +32,7 @@ public class Main {
 	      System.out.println("Collection sampleCollection selected successfully");
 
 	      //Cria um novo documento para ser adicionado ao mongodb
-	      Document document = new Document("title", "MongoDB") 
-	      .append("id", 1)
+	      Document document = new Document("", "") 
 	      .append("nome", "sensorteste")
 	      .append("timestamp", System.currentTimeMillis());  
 	      collection.insertOne(document); 
