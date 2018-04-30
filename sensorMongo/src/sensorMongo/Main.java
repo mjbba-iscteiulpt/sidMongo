@@ -1,5 +1,9 @@
 package sensorMongo;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.bson.Document;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -31,10 +35,15 @@ public class Main {
 	      MongoCollection<Document> collection = database.getCollection("SensorTeste"); 
 	      System.out.println("Collection sampleCollection selected successfully");
 
+	      
+	      DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+	      Date date = new Date();
+	      
+	      
 	      //Cria um novo documento para ser adicionado ao mongodb
-	      Document document = new Document("", "") 
+	      Document document = new Document() 
 	      .append("nome", "sensorteste")
-	      .append("timestamp", System.currentTimeMillis());  
+	      .append("timestamp", date);  
 	      collection.insertOne(document); 
 	      System.out.println("Document inserted successfully");     
 	   } 
