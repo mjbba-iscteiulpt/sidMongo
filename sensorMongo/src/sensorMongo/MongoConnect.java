@@ -18,12 +18,15 @@ public class MongoConnect {
 		System.out.println("Conexão efectuada com sucesso.");
 
 		// Iniciar conecção ao servidor MongoDB
-		InsertDataMongo newConnectionMongo = new InsertDataMongo(mongo);
+		MongoInteraction newConnectionMongo = new MongoInteraction(mongo);
 
 		Date date = new Date();
 
 		// Insere dados teste no servidor MongoDB
 		newConnectionMongo.insertDocument("sensor2", date);
+		
+		// Mostra dados da colecção
+		newConnectionMongo.getDocument();
 	}
 
 }
