@@ -4,10 +4,11 @@ import java.util.Date;
 
 import com.mongodb.*;
 
+
 public class MongoConnect {
 
 	public static void main(String[] args) {
-
+		
 		// cria novo cliente mongo
 		MongoClient mongo = new MongoClient("localhost", 27017);
 
