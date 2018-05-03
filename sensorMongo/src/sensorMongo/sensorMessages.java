@@ -23,12 +23,14 @@ public class sensorMessages {
 			connOpts.setCleanSession(true);
 			System.out.println("Connecting to broker: " + broker);
 			
+			// Listener que fica a espera de mensagens. Desconecta caso a mensagem seja igual a off.
 			sampleClient.setCallback(new MqttCallback() {
 				public void connectionLost(Throwable cause) {
 				}
-
 				public void messageArrived(String topic, MqttMessage message) throws Exception {
 					System.out.println("Message: " + message.toString());
+					if (message.toString().equals("off"))
+						disconnectSensor(sampleClient);						
 				}
 
 				public void deliveryComplete(IMqttDeliveryToken token) {
@@ -38,10 +40,6 @@ public class sensorMessages {
 			sampleClient.connect(connOpts);
 			System.out.println("Connected");
 			sampleClient.subscribe(topic);
-
-			//sampleClient.disconnect();
-			//System.out.println("Disconnected");
-		//	System.exit(0);
 		} catch (MqttException me) {
 			System.out.println("reason " + me.getReasonCode());
 			System.out.println("msg " + me.getMessage());
@@ -51,6 +49,14 @@ public class sensorMessages {
 			me.printStackTrace();
 		}
 
+	}
+	
+	
+	// Metodo para desconectar.
+	public static void disconnectSensor(MqttClient sampleClient) throws MqttException {
+		System.out.println("Disconnected");
+		sampleClient.disconnect();
+		System.exit(0);
 	}
 
 }
