@@ -66,9 +66,9 @@ public class sensorMessages {
 	}
 	
 	public static Map<String,String> parseMessage(MqttMessage message) {
-		String[] messageArray = message.toString().split(",", -1);
+		String[] messageArray = message.toString().split("\\,", -1);
 		for(String value : messageArray) {
-			String[] auxSplit = value.split(":");
+			String[] auxSplit = value.split("\\:", -1);
 			mapMessage.put(auxSplit[0], auxSplit[1]);
 		}
 		return mapMessage;
