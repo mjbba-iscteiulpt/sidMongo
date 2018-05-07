@@ -65,6 +65,8 @@ public class sensorMessages {
 		System.exit(0);
 	}
 	
+	
+	
 	public static Map<String,String> parseMessage(MqttMessage message) {
 		String[] messageArray = message.toString().split("\\,", -1);
 		for(String value : messageArray) {
