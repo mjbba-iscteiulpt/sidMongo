@@ -40,8 +40,10 @@ public class sensorMessages {
 					System.out.println("Message: " + message.toString());
 					pillhaMensagens.add(message);
 					try {
-						for (MqttMessage i : pillhaMensagens)
+						for (MqttMessage i : new ArrayList<>(pillhaMensagens)) {
 							new MongoInteraction().insertDocument(parseMessage(i));
+							pillhaMensagens.remove(i);
+						}
 						new MongoInteraction().disconnectMongo();
 					} catch (Exception e) {
 						
