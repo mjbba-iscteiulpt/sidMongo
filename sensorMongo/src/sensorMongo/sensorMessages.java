@@ -80,7 +80,9 @@ public class sensorMessages {
 		String[] messageArray = message.toString().split("\\,", -1);
 		Map<String, String> mapMessage = new HashMap<String, String>();
 		for (String value : messageArray) {
-			String[] auxSplit = value.split("\\:", -1);
+			String[] auxSplit = value.split(":(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+			auxSplit[0] = auxSplit[0].replaceAll("[\"\\{\\}]", "");
+			auxSplit[1] = auxSplit[1].replaceAll("[\"\\{\\}]", "");
 			mapMessage.put(auxSplit[0], auxSplit[1]);
 		}
 		return mapMessage;
