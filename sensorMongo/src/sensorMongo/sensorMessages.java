@@ -25,7 +25,7 @@ public class sensorMessages {
 		MemoryPersistence persistence = new MemoryPersistence();
 		List<MqttMessage> pillhaMensagens = new ArrayList<>();
 		ThreadSybaseProcessor dbThreadManager = new ThreadSybaseProcessor();
-
+		
 		try {
 			MqttClient sampleClient = new MqttClient(broker, clientId, persistence);
 			MqttConnectOptions connOpts = new MqttConnectOptions();

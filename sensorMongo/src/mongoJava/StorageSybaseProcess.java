@@ -4,8 +4,16 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+import org.bson.Document;
+
+import com.mongodb.DBObject;
+
+import sensorMongo.MongoInteraction;
 
 public class StorageSybaseProcess implements Runnable {
 	Connection con;
@@ -18,45 +26,62 @@ public class StorageSybaseProcess implements Runnable {
 	public void run() {
 		System.out.println("Teste a thread");
 		try {
-			connectSQL();
-			insertSQL();
-			disconnectSQL();
+			while (true) {
+				//Thread.sleep(30000);
+				connectSQL();
+				insertSQL();
+				processData();
+				disconnectSQL();
+			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		/*} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();*/
 		}
-		
 
 	}
 
 	public void connectSQL() throws SQLException {
-			con = DriverManager.getConnection("jdbc:sqlanywhere:uid=sensor1;pwd=sid;DatabaseName=SIDDBv15");
-			}
+		con = DriverManager.getConnection("jdbc:sqlanywhere:uid=sensor1;pwd=sid;DatabaseName=SIDDBv15");
+	}
 
 	public void insertSQL() {
-		PreparedStatement ps;
+		/*PreparedStatement ps;
 		try {
-			//TESTE
-			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-			LocalDate localDate = LocalDate.now();
-			
-			System.out.println(dtf.format(localDate));
+			// TESTE
+
 			ps = con.prepareStatement(
-					"insert into dba.HumidadeTemperatura(dataMedicaoHT,horaMedicaoHT,valorMedicaoTemperatura,valorMedicaoHumidade) values("+dtf.format(localDate)+",'11:11:11','11','11');");
+					"insert into dba.HumidadeTemperatura(dataMedicaoHT,horaMedicaoHT,valorMedicaoTemperatura,valorMedicaoHumidade) values('"
+							+ msSqlDateFormat.format(date) + "','11:11:11','11','11');");
 			ps.addBatch();
 			ps.executeBatch();
 			ps.close();
+
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}*/
+
+	}
+
+	public Date processData() {
+		java.util.Date date = null;
+		List<Document> auxList = new MongoInteraction().getDocument();
+		
+		try {
+			date = new SimpleDateFormat("yyyy-MM-dd").parse("2018-05-10");
+
+			java.text.SimpleDateFormat msSqlDateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		return date;
 
 	}
 
-	public void processData() {
-
-	}
-	
 	public void disconnectSQL() throws SQLException {
 		con.close();
 	}

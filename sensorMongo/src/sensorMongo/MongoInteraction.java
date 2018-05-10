@@ -1,11 +1,13 @@
 package sensorMongo;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.bson.Document;
 
+import com.mongodb.DBCursor;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoTimeoutException;
@@ -17,13 +19,13 @@ import com.mongodb.event.ServerHeartbeatStartedEvent;
 import com.mongodb.event.ServerHeartbeatSucceededEvent;
 import com.mongodb.event.ServerMonitorListener;
 
-public class MongoInteraction implements ServerMonitorListener{
+public class MongoInteraction implements ServerMonitorListener {
 
 	private MongoCollection<Document> collection;
 	private MongoClient mongo;
 	private MongoDatabase database;
 	private int sleepTime = 500;
-	
+
 	public MongoInteraction() {
 
 		try {
@@ -40,87 +42,89 @@ public class MongoInteraction implements ServerMonitorListener{
 		}
 	}
 
-	public void mongoConnect() throws MongoTimeoutException  {
-	
-            MongoClientOptions clientOptions = new MongoClientOptions.Builder()
-                .addServerMonitorListener((ServerMonitorListener) this)
-                .build();
+	public void mongoConnect() throws MongoTimeoutException {
+		MongoClientOptions clientOptions = new MongoClientOptions.Builder()
+				.addServerMonitorListener((ServerMonitorListener) this).build();
 
-            mongo = new MongoClient(new ServerAddress("localhost", 27017), clientOptions);
-            mongo.getAddress();
-        
+		mongo = new MongoClient(new ServerAddress("localhost", 27017), clientOptions);
+		mongo.getAddress();
+
 		System.out.println("Conexão efectuada com sucesso.");
-		database = mongo.getDatabase("SidMongo");		
+		database = mongo.getDatabase("SidMongo");
 		// Devolver uma colecção existente
 		collection = database.getCollection("SensorTeste");
 		System.out.println("Collection sampleCollection selected successfully");
 	}
-	/*public void mongoConnect() throws Exception {
-		// cria novo cliente mongo
-		mongo = new MongoClient("localhost", 27017);
-		try {
-		mongo.getAddress();
-		} catch (MongoException m) {
-			System.out.println("ASDSAD");
-		}
-		System.out.println("Conexão efectuada com sucesso.");
-
-		database = mongo.getDatabase("SidMongo");
-		
-		// Devolver uma colecção existente
-		collection = database.getCollection("SensorTeste");
-		System.out.println("Collection sampleCollection selected successfully");
-	}*/
+	/*
+	 * public void mongoConnect() throws Exception { // cria novo cliente mongo
+	 * mongo = new MongoClient("localhost", 27017); try { mongo.getAddress(); }
+	 * catch (MongoException m) { System.out.println("ASDSAD"); }
+	 * System.out.println("Conexão efectuada com sucesso.");
+	 * 
+	 * database = mongo.getDatabase("SidMongo");
+	 * 
+	 * // Devolver uma colecção existente collection =
+	 * database.getCollection("SensorTeste");
+	 * System.out.println("Collection sampleCollection selected successfully"); }
+	 */
 
 	public void insertDocument(Map<String, String> mapMessage) throws Exception {
-			// Cria um novo documento para ser adicionado ao mongodb
-			// Document document = new Document().append("nome", nome).append("timestamp",
-			// data);
-			Document document = new Document();
-			for (Map.Entry<String, String> entry : mapMessage.entrySet()) {
-				String key = entry.getKey();
-				String value = entry.getValue();
-				document.append(key, value);
-			}
-			collection.insertOne(document);
-			System.out.println("Document inserted successfully");
-			
-		
+		// Cria um novo documento para ser adicionado ao mongodb
+		// Document document = new Document().append("nome", nome).append("timestamp",
+		// data);
+		Document document = new Document();
+		for (Map.Entry<String, String> entry : mapMessage.entrySet()) {
+			String key = entry.getKey();
+			String value = entry.getValue();
+			document.append(key, value);
+		}
+		collection.insertOne(document);
+		System.out.println("Document inserted successfully");
+
 	}
 
 	public List<Document> getDocument() {
 		List<Document> documents = (List<Document>) collection.find().into(new ArrayList<Document>());
+	    Iterator<Document> iterator = documents.iterator();
+	    while (iterator.hasNext()) {
+	        Document document = iterator.next();
+	        document.remove("_id");
+	        List list = new ArrayList(document.values());
+	        System.out.println("hora: "+list.get(0));
+	        System.out.println("temperatura: "+list.get(1));
+	        System.out.println("data: "+list.get(2));
+	        System.out.println("humidade: "+list.get(3));
+	    }
 		return documents;
 	}
-	
-	
+
 	public void disconnectMongo() {
 		System.out.println("Desligar ligação com MongoDB.");
 		mongo.close();
 	}
-	
+
 	public int returnSleepTime(int arg) {
-		sleepTime = arg*2;
-		System.out.println("A tentar reconectar em "+sleepTime/1000+" segundos...");
-		return sleepTime;		
+		sleepTime = arg * 2;
+		System.out.println("A tentar reconectar em " + sleepTime / 1000 + " segundos...");
+		return sleepTime;
 	}
 
 	@Override
 	public void serverHearbeatStarted(ServerHeartbeatStartedEvent event) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void serverHeartbeatSucceeded(ServerHeartbeatSucceededEvent event) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void serverHeartbeatFailed(ServerHeartbeatFailedEvent event) {
 		mongoConnect();
-		
+
 	}
 
 }
