@@ -88,11 +88,9 @@ public class MongoInteraction implements ServerMonitorListener{
 		
 	}
 
-	public void getDocument() {
+	public List<Document> getDocument() {
 		List<Document> documents = (List<Document>) collection.find().into(new ArrayList<Document>());
-		for (Document document : documents) {
-			System.out.println(document);
-		}
+		return documents;
 	}
 	
 	

@@ -12,24 +12,26 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import mongoJava.ThreadSybaseProcessor;
 
 
 public class sensorMessages {
 
 	public static void main(String[] args) {
 
-		String topic = "sid_lab_2018";
+		String topic = "sid_lab_2018_teste2";
 		String broker = "tcp://iot.eclipse.org:1883";
 		String clientId = "JavaSample";
 		MemoryPersistence persistence = new MemoryPersistence();
 		List<MqttMessage> pillhaMensagens = new ArrayList<>();
+		ThreadSybaseProcessor dbThreadManager = new ThreadSybaseProcessor();
 
 		try {
 			MqttClient sampleClient = new MqttClient(broker, clientId, persistence);
 			MqttConnectOptions connOpts = new MqttConnectOptions();
 			connOpts.setCleanSession(true);
 			System.out.println("Connecting to broker: " + broker);
-
+			dbThreadManager.startNewThread();
 			// Listener que fica a espera de mensagens. Desconecta caso a mensagem seja
 			// igual a off.
 			sampleClient.setCallback(new MqttCallback() {
@@ -41,6 +43,7 @@ public class sensorMessages {
 					pillhaMensagens.add(message);
 					try {
 						for (MqttMessage i : new ArrayList<>(pillhaMensagens)) {
+							System.out.println("FOR!!!!!");
 							new MongoInteraction().insertDocument(parseMessage(i));
 							pillhaMensagens.remove(i);
 						}
