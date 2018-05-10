@@ -85,16 +85,6 @@ public class MongoInteraction implements ServerMonitorListener {
 
 	public List<Document> getDocument() {
 		List<Document> documents = (List<Document>) collection.find().into(new ArrayList<Document>());
-	    Iterator<Document> iterator = documents.iterator();
-	    while (iterator.hasNext()) {
-	        Document document = iterator.next();
-	        document.remove("_id");
-	        List list = new ArrayList(document.values());
-	        System.out.println("hora: "+list.get(0));
-	        System.out.println("temperatura: "+list.get(1));
-	        System.out.println("data: "+list.get(2));
-	        System.out.println("humidade: "+list.get(3));
-	    }
 		return documents;
 	}
 
