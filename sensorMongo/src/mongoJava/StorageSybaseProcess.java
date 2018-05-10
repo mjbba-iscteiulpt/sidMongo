@@ -68,8 +68,7 @@ public class StorageSybaseProcess implements Runnable {
 			System.out.println("hora: " + list.get(0));
 			System.out.println("temperatura: " + list.get(1));
 			System.out.println("data: " + list.get(2));
-			System.out.println("humidade: " + list.get(3));
-			
+			System.out.println("humidade: " + list.get(3));			
 			try {
 				stmt = con.prepareCall("{call dba.InsertSensor(?,?,?,?)}");
 				stmt.setDate(1, processData(list.get(2).toString()));
@@ -94,6 +93,7 @@ public class StorageSybaseProcess implements Runnable {
 				e.printStackTrace();
 			}*/
 		}
+		new MongoInteraction().deleteMany();
 	}
 
 	public java.sql.Date processData(String dataMongo) {

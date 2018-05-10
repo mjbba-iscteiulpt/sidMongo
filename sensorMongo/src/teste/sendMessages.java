@@ -11,15 +11,16 @@ public class sendMessages {
 	public static void main(String[] args) {
 
 		String topic = "sid_lab_2018_teste2";
-		String content = "{temperatura : \"22\" , humidade : \"44.4\" , data : \"07/05/2018\" , hora : \"13:12:11\"}";
 		int qos = 2;
 		String broker = "tcp://iot.eclipse.org:1883";
 		String clientId = "Java";
 		MemoryPersistence persistence = new MemoryPersistence();
 
 		try {
-			int c = 0;
+			int c = 1;
 			while (c < 100) {
+				String content = "{temperatura : \""+c+"\" , humidade : \"44.4\" , data : \"07/05/2018\" , hora : \"13:12:11\"}";
+
 				MqttClient sampleClient = new MqttClient(broker, clientId, persistence);
 				MqttConnectOptions connOpts = new MqttConnectOptions();
 				connOpts.setCleanSession(true);
@@ -41,6 +42,7 @@ public class sendMessages {
 
 				sampleClient.disconnect();
 				System.out.println("Disconnected");
+				c++;
 			}
 			System.exit(0);
 		} catch (MqttException me) {

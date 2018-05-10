@@ -98,6 +98,11 @@ public class MongoInteraction implements ServerMonitorListener {
 		System.out.println("A tentar reconectar em " + sleepTime / 1000 + " segundos...");
 		return sleepTime;
 	}
+	
+	public void deleteMany() {
+		System.out.println("A remover todos os registos do MongoDB...");
+		collection.deleteMany(new Document());
+	}
 
 	@Override
 	public void serverHearbeatStarted(ServerHeartbeatStartedEvent event) {
