@@ -12,42 +12,47 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+
+import auxClasses.AuxClass;
 import mongoJava.ThreadSybaseProcessor;
 
 
 public class sensorMessages {
 
+	public static AuxClass auxClass = new AuxClass();
+	
 	public static void main(String[] args) {
 
 		String topic = "sid_lab_2018_teste2";
 		String broker = "tcp://iot.eclipse.org:1883";
 		String clientId = "JavaSample";
 		MemoryPersistence persistence = new MemoryPersistence();
-		List<MqttMessage> pillhaMensagens = new ArrayList<>();
-		ThreadSybaseProcessor dbThreadManager = new ThreadSybaseProcessor();
+		List<Integer> lastReceivedMessages = new ArrayList<>();
+		MongoInteraction mongoInt = new MongoInteraction(topic);
+		
+		ThreadSybaseProcessor dbThreadManager = new ThreadSybaseProcessor(mongoInt, auxClass);
+		MqttClient sampleClient;
 		
 		try {
-			MqttClient sampleClient = new MqttClient(broker, clientId, persistence);
+			sampleClient = new MqttClient(broker, clientId, persistence);
 			MqttConnectOptions connOpts = new MqttConnectOptions();
 			connOpts.setCleanSession(true);
 			System.out.println("Connecting to broker: " + broker);
 			dbThreadManager.startNewThread();
-			// Listener que fica a espera de mensagens. Desconecta caso a mensagem seja
-			// igual a off.
+			// Listener que fica a espera de mensagens.
 			sampleClient.setCallback(new MqttCallback() {
 				public void connectionLost(Throwable cause) {
 				}
 
 				public void messageArrived(String topic, MqttMessage message) throws Exception {
 					System.out.println("Message: " + message.toString());
-					pillhaMensagens.add(message);
 					try {
-						for (MqttMessage i : new ArrayList<>(pillhaMensagens)) {
-							System.out.println("FOR!!!!!");
-							new MongoInteraction().insertDocument(parseMessage(i));
-							pillhaMensagens.remove(i);
-						}
-						new MongoInteraction().disconnectMongo();
+						mongoInt.mongoConnect();
+						//for (MqttMessage i : new ArrayList<>(pillhaMensagens)) {
+							mongoInt.insertDocument(parseMessage(message));
+							//pillhaMensagens.remove(i);
+						//}
+						mongoInt.disconnectMongo();
 					} catch (Exception e) {
 						
 					}
@@ -86,9 +91,20 @@ public class sensorMessages {
 			String[] auxSplit = value.split(":(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
 			auxSplit[0] = auxSplit[0].replaceAll("[\"\\{\\}]", "");
 			auxSplit[1] = auxSplit[1].replaceAll("[\"\\{\\}]", "");
+			if (auxSplit[0].contains("temperatura") || auxSplit[0].contains("temperature")) {
+				auxClass.addTemp(Double.parseDouble(auxSplit[1]));
+			}
+			if (auxSplit[0].contains("humidade") || auxSplit[0].contains("humidity"))
+				auxClass.addHum(Double.parseDouble(auxSplit[1]));
 			mapMessage.put(auxSplit[0], auxSplit[1]);
 		}
 		return mapMessage;
 	}
+	
+	/*public void SubNewTopic(String newTopic) {
+		sampleClient.subscribe(newTopic);
+	}*/
+	
+	
 	
 }

@@ -17,7 +17,8 @@ public class sendMessages {
 		MemoryPersistence persistence = new MemoryPersistence();
 
 		try {
-			int c = 1;
+			double c = 25;
+			int t = 0;
 			while (c < 100) {
 				String content = "{temperatura : \""+c+"\" , humidade : \"44.4\" , data : \"07/05/2018\" , hora : \"13:12:11\"}";
 
@@ -42,7 +43,11 @@ public class sendMessages {
 
 				sampleClient.disconnect();
 				System.out.println("Disconnected");
-				c++;
+
+					c=25;
+				if (t==5 || t == 16)
+					c=70;
+				t++;
 			}
 			System.exit(0);
 		} catch (MqttException me) {

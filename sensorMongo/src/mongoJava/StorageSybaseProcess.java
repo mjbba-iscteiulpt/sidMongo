@@ -1,30 +1,27 @@
 package mongoJava;
 
-import java.math.BigDecimal;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
+import mongoJava.ThreadSybaseProcessor;
 
 import org.bson.Document;
 
-import com.mongodb.DBObject;
-
 import sensorMongo.MongoInteraction;
+import sensorMongo.sensorMessages;
 
 public class StorageSybaseProcess implements Runnable {
 	Connection con;
+	private MongoInteraction mongoInt = new MongoInteraction();
 
 	public StorageSybaseProcess() {
 		// TODO Auto-generated constructor stub
@@ -33,13 +30,30 @@ public class StorageSybaseProcess implements Runnable {
 	@Override
 	public void run() {
 		System.out.println("Teste a thread");
+
 		try {
 			while (true) {
-				
+				Thread.sleep(30000);
+				List<Double> humList = new ArrayList<Double>();
+				List<Double> tempList = new ArrayList<Double>();
+				if (!sensorMessages.auxClass.getLastHum().isEmpty()) {
+					humList = sensorMessages.auxClass.getOutliers(sensorMessages.auxClass.getLastHum());
+				}
+				if (!sensorMessages.auxClass.getLastTemp().isEmpty())
+					tempList = sensorMessages.auxClass.getOutliers(sensorMessages.auxClass.getLastTemp());
+				if (!humList.isEmpty()) {
+					for (Double v : humList)
+						mongoInt.deleteOneDoc("humidity", v.toString());
+				}
+				System.out.println("Tamanho "+tempList.size());
+				if (!tempList.isEmpty()) {
+					for (Double v : tempList)
+						mongoInt.deleteOneDoc("temperature", v.toString());
+				}
 				connectSQL();
 				insertSQL();
 				disconnectSQL();
-				Thread.sleep(30000);
+
 			}
 		} catch (SQLException | InterruptedException e) {
 			// TODO Auto-generated catch block
@@ -57,43 +71,36 @@ public class StorageSybaseProcess implements Runnable {
 	}
 
 	public void insertSQL() {
-		List<Document> documents = new MongoInteraction().getDocument();
+		mongoInt.mongoConnect();
+		List<Document> documents = mongoInt.getDocument();
 		Iterator<Document> iterator = documents.iterator();
 		CallableStatement stmt;
 		while (iterator.hasNext()) {
-			System.out.println("HasNext? "+iterator.hasNext());
 			Document document = iterator.next();
 			document.remove("_id");
 			List list = new ArrayList(document.values());
-			System.out.println("hora: " + list.get(0));
-			System.out.println("temperatura: " + list.get(1));
-			System.out.println("data: " + list.get(2));
-			System.out.println("humidade: " + list.get(3));			
 			try {
 				stmt = con.prepareCall("{call dba.InsertSensor(?,?,?,?)}");
 				stmt.setDate(1, processData(list.get(2).toString()));
-			    stmt.setTime(2, processTime(list.get(0).toString()));
-			    stmt.setString(3, list.get(1).toString());
-			    stmt.setString(4, list.get(3).toString());
-			    stmt.execute();
+				stmt.setTime(2, processTime(list.get(0).toString()));
+				stmt.setString(3, list.get(1).toString());
+				stmt.setString(4, list.get(3).toString());
+				stmt.execute();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			/*PreparedStatement ps;
-			try {
-				ps = con.prepareStatement(
-						"insert into dba.HumidadeTemperatura(dataMedicaoHT,horaMedicaoHT,valorMedicaoTemperatura,valorMedicaoHumidade) values('"
-								+ processData(list.get(2).toString()) + "','" + processTime(list.get(0).toString())
-								+ "','" + list.get(1) + "','" + list.get(3) + "');");
-				ps.executeBatch();
-				ps.close();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}*/
+			/*
+			 * PreparedStatement ps; try { ps = con.prepareStatement(
+			 * "insert into dba.HumidadeTemperatura(dataMedicaoHT,horaMedicaoHT,valorMedicaoTemperatura,valorMedicaoHumidade) values('"
+			 * + processData(list.get(2).toString()) + "','" +
+			 * processTime(list.get(0).toString()) + "','" + list.get(1) + "','" +
+			 * list.get(3) + "');"); ps.executeBatch(); ps.close(); } catch (SQLException e)
+			 * { // TODO Auto-generated catch block e.printStackTrace(); }
+			 */
 		}
-		new MongoInteraction().deleteMany();
+		mongoInt.deleteMany();
+		mongoInt.disconnectMongo();
 	}
 
 	public java.sql.Date processData(String dataMongo) {
