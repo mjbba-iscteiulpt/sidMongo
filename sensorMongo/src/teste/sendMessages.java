@@ -1,5 +1,9 @@
 package teste;
 
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -11,16 +15,18 @@ public class sendMessages {
 	public static void main(String[] args) {
 
 		String topic = "sid_lab_2018_teste2";
-		int qos = 2;
+		int qos = 0;
 		String broker = "tcp://iot.eclipse.org:1883";
 		String clientId = "Java";
 		MemoryPersistence persistence = new MemoryPersistence();
 
 		try {
-			double c = 25;
+			double temp = 25;
+			double hum = 40;
 			int t = 0;
-			while (c < 100) {
-				String content = "{temperatura : \""+c+"\" , humidade : \"44.4\" , data : \"07/05/2018\" , hora : \"13:12:11\"}";
+			while (t < 100) {
+				LocalTime hour = ZonedDateTime.now().toLocalTime().truncatedTo(ChronoUnit.SECONDS);
+				String content = "{temperatura : \""+temp+"\" , humidade : \""+hum+"\" , data : \"01/06/2018\" , hora : \""+hour+"\"}";
 
 				MqttClient sampleClient = new MqttClient(broker, clientId, persistence);
 				MqttConnectOptions connOpts = new MqttConnectOptions();
@@ -44,9 +50,13 @@ public class sendMessages {
 				sampleClient.disconnect();
 				System.out.println("Disconnected");
 
-					c=25;
+					temp=25;
 				if (t==5 || t == 16)
-					c=70;
+					temp=70;
+				if (t>=20) {
+					temp = 30;
+					hum = 60;
+				}
 				t++;
 			}
 			System.exit(0);

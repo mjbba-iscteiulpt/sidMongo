@@ -42,6 +42,14 @@ public class sensorMessages {
 			// Listener que fica a espera de mensagens.
 			sampleClient.setCallback(new MqttCallback() {
 				public void connectionLost(Throwable cause) {
+					try {
+						sampleClient.connect(connOpts);
+						System.out.println("Connected");
+						sampleClient.subscribe(topic);
+					} catch (MqttException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}					
 				}
 
 				public void messageArrived(String topic, MqttMessage message) throws Exception {

@@ -39,6 +39,7 @@ public class AuxClass {
 	 */
 
 	public List<Double> getOutliers(List<Double> input) {
+		Collections.sort(input);
 		double median = input.get(Math.round(input.size() / 2));
 		double LQ = input.get(Math.round(input.size() / 4));
 		double UQ = input.get(Math.round(3 * input.size() / 4));
