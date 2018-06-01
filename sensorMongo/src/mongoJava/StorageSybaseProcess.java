@@ -56,6 +56,7 @@ public class StorageSybaseProcess implements Runnable {
 
 			}
 		} catch (SQLException | InterruptedException e) {
+			run();
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			/*

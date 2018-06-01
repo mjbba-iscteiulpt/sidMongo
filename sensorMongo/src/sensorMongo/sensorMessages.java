@@ -26,6 +26,7 @@ public class sensorMessages {
 		String topic = "sid_lab_2018_teste2";
 		String broker = "tcp://iot.eclipse.org:1883";
 		String clientId = "JavaSample";
+		int qos = 0;
 		MemoryPersistence persistence = new MemoryPersistence();
 		List<Integer> lastReceivedMessages = new ArrayList<>();
 		MongoInteraction mongoInt = new MongoInteraction(topic);
@@ -72,7 +73,7 @@ public class sensorMessages {
 
 			sampleClient.connect(connOpts);
 			System.out.println("Connected");
-			sampleClient.subscribe(topic);
+			sampleClient.subscribe(topic, qos);
 
 		} catch (MqttException me) {
 			System.out.println("reason " + me.getReasonCode());
