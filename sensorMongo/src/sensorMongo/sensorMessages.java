@@ -100,6 +100,7 @@ public class sensorMessages {
 			String[] auxSplit = value.split(":(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
 			auxSplit[0] = auxSplit[0].replaceAll("[\"\\{\\}]", "");
 			auxSplit[1] = auxSplit[1].replaceAll("[\"\\{\\}]", "");
+			System.out.println(auxSplit[0]+": "+auxSplit[1]);
 			if (auxSplit[0].contains("temperatura") || auxSplit[0].contains("temperature")) {
 				auxClass.addTemp(Double.parseDouble(auxSplit[1]));
 			}

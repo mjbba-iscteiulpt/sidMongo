@@ -50,12 +50,11 @@ public class sendMessages {
 				sampleClient.disconnect();
 				System.out.println("Disconnected");
 
-					temp=25;
-				if (t==5 || t == 16)
-					temp=70;
+				/*if (t==5 || t == 16)
+					temp=70;*/
 				if (t>=20) {
-					temp = 30;
-					hum = 60;
+					temp += 0.5;
+					hum += 0.5;
 				}
 				t++;
 			}

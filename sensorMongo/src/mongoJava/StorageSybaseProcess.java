@@ -8,10 +8,13 @@ import java.sql.Time;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
+
 import mongoJava.ThreadSybaseProcessor;
 
 import org.bson.Document;
@@ -82,7 +85,12 @@ public class StorageSybaseProcess implements Runnable {
 			List list = new ArrayList(document.values());
 			try {
 				stmt = con.prepareCall("{call dba.InsertSensor(?,?,?,?)}");
-				stmt.setDate(1, processData(list.get(2).toString()));
+				try {
+					stmt.setDate(1, processData(list.get(2).toString()));
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				stmt.setTime(2, processTime(list.get(0).toString()));
 				stmt.setString(3, list.get(1).toString());
 				stmt.setString(4, list.get(3).toString());
@@ -104,24 +112,35 @@ public class StorageSybaseProcess implements Runnable {
 		mongoInt.disconnectMongo();
 	}
 
-	public java.sql.Date processData(String dataMongo) {
+	@SuppressWarnings("deprecation")
+	public java.sql.Date processData(String dataMongo) throws ParseException {
 		dataMongo = dataMongo.replaceAll("\\s+", "");
-		java.util.Date myDate = new java.util.Date(dataMongo);
-		java.sql.Date sqlDate = new java.sql.Date(myDate.getTime());
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+		Date parsed = null;
+		try {
+	        parsed = sdf.parse(dataMongo);
+	    } catch (ParseException e1) {
+	        // TODO Auto-generated catch block
+	        e1.printStackTrace();
+	    }
+	    java.sql.Date sqlDate = new java.sql.Date(parsed.getTime());
 		return sqlDate;
 	}
 
 	public Time processTime(String timeMongo) {
-		DateFormat sdf = new SimpleDateFormat("hh:mm:ss");
-		Date date = null;
-		try {
+		timeMongo = timeMongo.replaceAll("\\s+", "");
+		//DateFormat sdf = new SimpleDateFormat("hh:mm:ss");
+		//Date date = null;
+		/*try {
 			date = sdf.parse(timeMongo);
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
+			timeMongo+=":00";
+			processTime(timeMongo);
 			e.printStackTrace();
 		}
-		Time time = new Time(date.getTime());
-		return time;
+		Time time = new Time(date.getTime());*/
+		
+		return java.sql.Time.valueOf(LocalTime.parse(timeMongo));
 	}
 
 	public void disconnectSQL() throws SQLException {
