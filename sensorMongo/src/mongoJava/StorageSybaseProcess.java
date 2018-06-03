@@ -71,6 +71,7 @@ public class StorageSybaseProcess implements Runnable {
 	}
 
 	public void connectSQL() throws SQLException {
+		System.out.println("Conect SQL!!!!!!!!");
 		con = DriverManager.getConnection("jdbc:sqlanywhere:uid=sensor1;pwd=sid;DatabaseName=SIDDBv15");
 	}
 

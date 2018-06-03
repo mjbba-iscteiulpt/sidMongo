@@ -1,8 +1,11 @@
 package teste;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
@@ -24,9 +27,12 @@ public class sendMessages {
 			double temp = 25;
 			double hum = 40;
 			int t = 0;
-			while (t < 100) {
+			while (true) {
 				LocalTime hour = ZonedDateTime.now().toLocalTime().truncatedTo(ChronoUnit.SECONDS);
-				String content = "{temperatura : \""+temp+"\" , humidade : \""+hum+"\" , data : \"01/06/2018\" , hora : \""+hour+"\"}";
+				DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+			    //get current date time with Date()
+			    Date date = new Date();
+				String content = "{temperatura : \""+temp+"\" , humidade : \""+hum+"\" , data : \""+dateFormat.format(date).toString()+"\" , hora : \""+hour+"\"}";
 
 				MqttClient sampleClient = new MqttClient(broker, clientId, persistence);
 				MqttConnectOptions connOpts = new MqttConnectOptions();
@@ -58,7 +64,7 @@ public class sendMessages {
 				}
 				t++;
 			}
-			System.exit(0);
+			//System.exit(0);
 		} catch (MqttException me) {
 			System.out.println("reason " + me.getReasonCode());
 			System.out.println("msg " + me.getMessage());
